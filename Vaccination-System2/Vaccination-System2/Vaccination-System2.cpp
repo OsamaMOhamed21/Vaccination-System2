@@ -1,8 +1,10 @@
-#include<iostream>
-#include<string>
-#include<list>
-#include<ctime>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <list>
+#include <ctime>
 using namespace std;
+
 
 class Reservation {
 public:
@@ -11,12 +13,8 @@ public:
     string timeSlot;
     double invoiceAmount;
 
-    Reservation(string name, string vaccine, string slot, double amount) {
-        clientName = name;
-        vaccineType = vaccine;
-        timeSlot = slot;
-        invoiceAmount = amount;
-    }
+    Reservation(string name, string vaccine, string slot, double amount)
+        : clientName(name), vaccineType(vaccine), timeSlot(slot), invoiceAmount(amount) {}
 
     void displayReservation() {
         cout << "\nClient Name: " << clientName << endl;
@@ -24,7 +22,13 @@ public:
         cout << "Time Slot: " << timeSlot << endl;
         cout << "Invoice Amount: $" << invoiceAmount << endl;
     }
+
+
+    void saveToFile(ofstream &outFile) {
+        outFile << clientName << "," << vaccineType << "," << timeSlot << "," << invoiceAmount << endl;
+    }
 };
+
 
 class User {
 public:
@@ -33,17 +37,19 @@ public:
     string userType;
     User* next;
 
-    User() {
-        next = nullptr;
-    }
-
     User(string name, string password, string userType) {
         this->name = name;
         this->password = password;
         this->userType = userType;
         this->next = nullptr;
     }
+
+
+    void saveToFile(ofstream &outFile) {
+        outFile << name << "," << password << "," << userType << endl;
+    }
 };
+
 
 class VaccinationSystem {
 private:
@@ -52,31 +58,73 @@ private:
     list<string> vaccineStore;
 
 public:
-    VaccinationSystem() {
-        headUser = nullptr;
+    VaccinationSystem() : headUser(nullptr) {}
+
+
+    void addVaccineToStore(string vaccine) {
+        vaccineStore.push_back(vaccine);
+        ofstream outFile("vaccines.txt", ios::app);
+        outFile << vaccine << endl;
+        outFile.close();
+        cout << "Vaccine " << vaccine << " added to store.\n";
     }
 
-    void reserveAppointment(string clientName, string vaccineType, string timeSlot) {
-        double amount = 100;
-        Reservation newReservation(clientName, vaccineType, timeSlot, amount);
-        reservations.push_back(newReservation);
-        cout << "\nReservation successful for " << clientName << "!\n";
-        cout << "Appointment scheduled for " << timeSlot << " with " << vaccineType << " vaccine.\n";
-        newReservation.displayReservation();
-    }
-
-    void sendNotification(string clientName) {
-        cout << "\nEmail sent to " << clientName << " requesting feedback on the service.\n";
-    }
 
     void generateStoreReport() {
         cout << "\nVaccination Store Report:\n";
         cout << "Available Vaccines:\n";
         for (const string& vaccine : vaccineStore) {
-            cout << " " << vaccine << endl;
+            cout << "- " << vaccine << endl;
         }
         cout << "Total Vaccines Available: " << vaccineStore.size() << endl;
     }
+
+
+    void loadVaccinesFromFile() {
+        ifstream inFile("vaccines.txt");
+        string vaccine;
+        while (getline(inFile, vaccine)) {
+            vaccineStore.push_back(vaccine);
+        }
+        inFile.close();
+    }
+
+
+    void reserveAppointment(string clientName, string vaccineType, string timeSlot) {
+        double amount = 100;  // Default invoice amount
+        Reservation newReservation(clientName, vaccineType, timeSlot, amount);
+        reservations.push_back(newReservation);
+
+        // Save reservation to file
+        ofstream outFile("reservations.txt", ios::app);
+        newReservation.saveToFile(outFile);
+        outFile.close();
+
+        cout << "\nReservation successful for " << clientName << "!\n";
+        cout << "Appointment scheduled for " << timeSlot << " with " << vaccineType << " vaccine.\n";
+        newReservation.displayReservation();
+    }
+
+
+    void loadReservationsFromFile() {
+        ifstream inFile("reservations.txt");
+        string line;
+        while (getline(inFile, line)) {
+            size_t firstComma = line.find(",");
+            size_t secondComma = line.find(",", firstComma + 1);
+            size_t thirdComma = line.find(",", secondComma + 1);
+
+            string clientName = line.substr(0, firstComma);
+            string vaccineType = line.substr(firstComma + 1, secondComma - firstComma - 1);
+            string timeSlot = line.substr(secondComma + 1, thirdComma - secondComma - 1);
+            double invoiceAmount = stod(line.substr(thirdComma + 1));
+
+            Reservation newReservation(clientName, vaccineType, timeSlot, invoiceAmount);
+            reservations.push_back(newReservation);
+        }
+        inFile.close();
+    }
+
 
     void addUser(string username, string password, string userType) {
         User* newUser = new User(username, password, userType);
@@ -89,24 +137,32 @@ public:
             }
             temp->next = newUser;
         }
-        cout << "\nUser added successfully!\n";
+
+
+        ofstream outFile("users.txt", ios::app);
+        newUser->saveToFile(outFile);
+        outFile.close();
+
+        cout << "User " << username << " added successfully!\n";
     }
+
 
     User* searchUser(string username) {
         User* temp = headUser;
         while (temp != nullptr) {
-            if (temp->name == username) {  // Correct comparison
+            if (temp->name == username) {
                 return temp;
             }
             temp = temp->next;
         }
-        return nullptr; // Return nullptr if user is not found
+        return nullptr;
     }
+
 
     bool login(string username, string password) {
         User* user = searchUser(username);
         if (user != nullptr && user->password == password) {
-            cout << "Login successful! Welcome, " << user->name << endl; // Corrected to 'name'
+            cout << "Login successful! Welcome, " << user->name << endl;
             return true;
         } else {
             cout << "Invalid username or password!" << endl;
@@ -114,18 +170,21 @@ public:
         }
     }
 
+    // Logout method for users
     void logout() {
         cout << "You have been logged out successfully.\n";
     }
+
 
     void listUsers() {
         User* temp = headUser;
         cout << "\nList of users:\n";
         while (temp != nullptr) {
-            cout << "Username: " << temp->name << ", Role: " << temp->userType << endl; // Corrected 'username' to 'name'
+            cout << "Username: " << temp->name << ", Role: " << temp->userType << endl;
             temp = temp->next;
         }
     }
+
 
     void displayMenu() {
         cout << "\n***** Vaccination System Menu *****\n";
@@ -137,6 +196,23 @@ public:
         cout << "6. Logout\n";
         cout << "7. Exit\n";
         cout << "Enter your choice: ";
+    }
+
+
+    void loadUsersFromFile() {
+        ifstream inFile("users.txt");
+        string line;
+        while (getline(inFile, line)) {
+            size_t firstComma = line.find(",");
+            size_t secondComma = line.find(",", firstComma + 1);
+
+            string username = line.substr(0, firstComma);
+            string password = line.substr(firstComma + 1, secondComma - firstComma - 1);
+            string userType = line.substr(secondComma + 1);
+
+            addUser(username, password, userType);
+        }
+        inFile.close();
     }
 };
 
