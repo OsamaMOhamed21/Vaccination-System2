@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 using namespace std;
 
 
@@ -11,11 +12,23 @@ protected:
     string userType;
 
 public:
-    User(string username, string password, string userType)
-        : username(username), password(password), userType(userType) {}
+    User(string username, string password, string userType): username(username), password(password), userType(userType) 
+        {
 
-    string getUsername() const { return username; }
-    string getUserType() const { return userType; }
+        }
+
+    string getUsername()
+    {
+         return username;
+     }
+    string getUserType()  
+    {
+         return userType; 
+    }
+    string getPassword()
+    {
+        return password ;
+    }
 
     void login() {
         cout << username << " logged in as " << userType << ".\n";
@@ -32,16 +45,21 @@ private:
     vector<string> appointments;
 
 public:
-    Client(string username, string password)
-        : User(username, password, "Client") {}
+    Client(string username, string password): User(username, password, "Client")
+         {
 
-    void reserveAppointment(const string& timeSlot) {
+        }
+
+    void reserveAppointment(const string& timeSlot) 
+    {
         appointments.push_back(timeSlot);
         cout << "Appointment reserved at " << timeSlot << ".\n";
     }
 
-    void generateInvoice() const {
-        if (!appointments.empty()) {
+    void generateInvoice() 
+     {
+        if (!appointments.empty())
+         {
             cout << "Invoice for appointments:\n";
             for (const auto& slot : appointments)
                 cout << "- Appointment at " << slot << endl;
@@ -50,8 +68,10 @@ public:
         }
     }
 
-    void searchSlot(const string& timeSlot) const {
-        for (const auto& slot : appointments) {
+    void searchSlot(const string& timeSlot) 
+     {
+        for (const auto& slot : appointments)
+         {
             if (slot == timeSlot) {
                 cout << "You have an appointment at " << timeSlot << ".\n";
                 return;
@@ -60,27 +80,49 @@ public:
         cout << timeSlot << " is available.\n";
     }
 
-    void sendNotification() const {
+    void sendNotification() 
+     {
         cout << "Notification email sent to " << username
              << " for service evaluation.\n";
+    }
+        void saveAppointmentsToFile() 
+         {
+        ofstream outFile("appointments_" + username + ".txt");
+        for (const auto& slot : appointments) {
+            outFile << slot << "\n";
+        }
+    }
+
+    void loadAppointmentsFromFile()
+     {
+        ifstream inFile("appointments_" + username + ".txt");
+        string slot;
+        while (getline(inFile, slot)) {
+            appointments.push_back(slot);
+        }
     }
 };
 
 
-class StoreManagement {
+class StoreManagement 
+{
 private:
     vector<string> vaccines;
     int vaccineCount;
 
 public:
-    StoreManagement(int initialCount = 100) : vaccineCount(initialCount) {}
+    StoreManagement(int initialCount = 100) : vaccineCount(initialCount) 
+    {
+        
+    }
 
     void manageStore() {
         cout << "Current vaccine count: " << vaccineCount << endl;
         int used;
         cout << "Enter number of vaccines used: ";
         cin >> used;
-        if (used <= vaccineCount) {
+        if (used <= vaccineCount) 
+        {
             vaccineCount -= used;
             cout << "Vaccine count updated: " << vaccineCount << endl;
         } else {
@@ -88,24 +130,45 @@ public:
         }
     }
 
-    void generateReport() const {
+    void generateReport() 
+     {
         cout << "Vaccination store status:\n";
         cout << "- Total vaccines available: " << vaccineCount << endl;
+    }
+     void saveInventoryToFile() 
+      {
+        ofstream outFile("inventory.txt");
+        outFile << vaccineCount << endl;
+    }
+
+    void loadInventoryFromFile()
+     {
+        ifstream inFile("inventory.txt");
+        if (inFile >> vaccineCount) 
+        {
+            cout << "Inventory loaded successfully.\n";
+        } else 
+        {
+            cout << "Failed to load inventory. Using default value.\n";
+        }
     }
 };
 
 
-class UserManagement {
+class UserManagement 
+{
 private:
     vector<User*> users;
 
 public:
-    ~UserManagement() {
+    ~UserManagement() 
+    {
         for (auto user : users)
             delete user;
     }
 
-    void addUser(const string& username, const string& password, const string& userType) {
+    void addUser(const string& username, const string& password, const string& userType)
+     {
         if (userType == "Client") {
             users.push_back(new Client(username, password));
         } else {
@@ -114,7 +177,8 @@ public:
         cout << userType << " added successfully with username: " << username << endl;
     }
 
-    void updateUser(const string& username) {
+    void updateUser(const string& username)
+     {
         for (auto user : users) {
             if (user->getUsername() == username) {
                 cout << "Updating " << username << "'s details.\n";
@@ -131,8 +195,10 @@ public:
         cout << "User not found.\n";
     }
 
-    void deleteUser(const string& username) {
-        for (auto it = users.begin(); it != users.end(); ++it) {
+    void deleteUser(const string& username)
+     {
+        for (auto it = users.begin(); it != users.end(); ++it)
+        {
             if ((*it)->getUsername() == username) {
                 cout << "User " << username << " deleted successfully.\n";
                 delete *it;
@@ -143,8 +209,10 @@ public:
         cout << "User not found.\n";
     }
 
-    void listUsers() const {
-        if (users.empty()) {
+    void listUsers() 
+    {
+        if (users.empty()) 
+        {
             cout << "No users registered.\n";
         } else {
             cout << "Registered Users:\n";
@@ -153,12 +221,31 @@ public:
             }
         }
     }
+      void saveUsersToFile() 
+       {
+        ofstream outFile("users.txt");
+        for (const auto& user : users) {
+            outFile << user->getUserType() << " " << user->getUsername() << " " << user->getPassword() << "\n";
+        }
+    }
+
+    void loadUsersFromFile() {
+        ifstream inFile("users.txt");
+        string userType, username, password;
+        while (inFile >> userType >> username >> password) {
+            addUser(username, password, userType);
+        }
+    }
 };
 
 
 int main() {
     StoreManagement store(200);
     UserManagement userManagement;
+
+    store.loadInventoryFromFile();
+    userManagement.loadUsersFromFile();
+
     int choice;
 
     do {
@@ -170,8 +257,10 @@ int main() {
         cout << "Enter your choice: ";
         cin >> choice;
 
-        switch (choice) {
-            case 1: {
+        switch (choice)
+         {
+            case 1:
+             {
                 string username, password, timeSlot;
                 cout << "\n--- Client Reservation ---\n";
                 cout << "Enter Username: ";
@@ -190,7 +279,8 @@ int main() {
                 int clientChoice;
                 cin >> clientChoice;
 
-                switch (clientChoice) {
+                switch (clientChoice)
+                 {
                     case 1:
                         cout << "Enter preferred time slot: ";
                         cin.ignore();
@@ -222,9 +312,11 @@ int main() {
                 cout << "2. Generate Report\n";
                 cin >> choice;
 
-                if (choice == 1) {
+                if (choice == 1) 
+                {
                     store.manageStore();
-                } else if (choice == 2) {
+                } else if (choice == 2) 
+                {
                     store.generateReport();
                 } else {
                     cout << "Invalid choice.\n";
@@ -239,7 +331,8 @@ int main() {
                 cout << "4. List Users\n";
                 cin >> choice;
 
-                if (choice == 1) {
+                if (choice == 1)
+                 {
                     string username, password, userType;
                     cout << "Enter Username: ";
                     cin >> username;
@@ -248,17 +341,21 @@ int main() {
                     cout << "Enter User Type (Client/Seller/Admin): ";
                     cin >> userType;
                     userManagement.addUser(username, password, userType);
-                } else if (choice == 2) {
+                } else if (choice == 2) 
+                {
                     string username;
                     cout << "Enter Username to update: ";
                     cin >> username;
                     userManagement.updateUser(username);
-                } else if (choice == 3) {
+                } else if (choice == 3) 
+                {
                     string username;
                     cout << "Enter Username to delete: ";
                     cin >> username;
                     userManagement.deleteUser(username);
-                } else if (choice == 4) {
+                } else if (choice == 4)
+
+                {
                     userManagement.listUsers();
                 } else {
                     cout << "Invalid choice.\n";
