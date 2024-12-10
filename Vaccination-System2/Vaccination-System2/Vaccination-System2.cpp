@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <fstream>
 using namespace std;
 
 
@@ -10,11 +9,12 @@ protected:
     string username;
     string password;
     string userType;
-
+    
 public:
     User(string username, string password, string userType): username(username), password(password), userType(userType) 
         {
-
+          
+          
         }
 
     string getUsername()
@@ -37,6 +37,7 @@ public:
     void logout() {
         cout << username << " logged out.\n";
     }
+   
 };
 
 
@@ -85,22 +86,8 @@ public:
         cout << "Notification email sent to " << username
              << " for service evaluation.\n";
     }
-        void saveAppointmentsToFile() 
-         {
-        ofstream outFile("appointments_" + username + ".txt");
-        for (const auto& slot : appointments) {
-            outFile << slot << "\n";
-        }
-    }
+ 
 
-    void loadAppointmentsFromFile()
-     {
-        ifstream inFile("appointments_" + username + ".txt");
-        string slot;
-        while (getline(inFile, slot)) {
-            appointments.push_back(slot);
-        }
-    }
 };
 
 
@@ -135,23 +122,9 @@ public:
         cout << "Vaccination store status:\n";
         cout << "- Total vaccines available: " << vaccineCount << endl;
     }
-     void saveInventoryToFile() 
-      {
-        ofstream outFile("inventory.txt");
-        outFile << vaccineCount << endl;
-    }
+   
 
-    void loadInventoryFromFile()
-     {
-        ifstream inFile("inventory.txt");
-        if (inFile >> vaccineCount) 
-        {
-            cout << "Inventory loaded successfully.\n";
-        } else 
-        {
-            cout << "Failed to load inventory. Using default value.\n";
-        }
-    }
+    
 };
 
 
@@ -221,30 +194,13 @@ public:
             }
         }
     }
-      void saveUsersToFile() 
-       {
-        ofstream outFile("users.txt");
-        for (const auto& user : users) {
-            outFile << user->getUserType() << " " << user->getUsername() << " " << user->getPassword() << "\n";
-        }
-    }
-
-    void loadUsersFromFile() {
-        ifstream inFile("users.txt");
-        string userType, username, password;
-        while (inFile >> userType >> username >> password) {
-            addUser(username, password, userType);
-        }
-    }
+   
 };
 
 
 int main() {
     StoreManagement store(200);
     UserManagement userManagement;
-
-    store.loadInventoryFromFile();
-    userManagement.loadUsersFromFile();
 
     int choice;
 
@@ -276,6 +232,7 @@ int main() {
                 cout << "2. Generate Invoice\n";
                 cout << "3. Search Time Slot\n";
                 cout << "4. Send Notification\n";
+                cout << "Enter your choice: ";
                 int clientChoice;
                 cin >> clientChoice;
 
@@ -310,6 +267,7 @@ int main() {
                 cout << "\n--- Vaccination Store Management ---\n";
                 cout << "1. Manage Store\n";
                 cout << "2. Generate Report\n";
+                cout << "Enter your choice: ";
                 cin >> choice;
 
                 if (choice == 1) 
@@ -329,6 +287,7 @@ int main() {
                 cout << "2. Update User\n";
                 cout << "3. Delete User\n";
                 cout << "4. List Users\n";
+                cout << "Enter your choice: ";
                 cin >> choice;
 
                 if (choice == 1)
