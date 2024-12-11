@@ -9,25 +9,25 @@ protected:
     string username;
     string password;
     string userType;
-    
+
 public:
-    User(string username, string password, string userType): username(username), password(password), userType(userType) 
-        {
-          
-          
-        }
+    User(string username, string password, string userType) : username(username), password(password), userType(userType)
+    {
+
+
+    }
 
     string getUsername()
     {
-         return username;
-     }
-    string getUserType()  
+        return username;
+    }
+    string getUserType()
     {
-         return userType; 
+        return userType;
     }
     string getPassword()
     {
-        return password ;
+        return password;
     }
 
     void login() {
@@ -37,7 +37,7 @@ public:
     void logout() {
         cout << username << " logged out.\n";
     }
-   
+
 };
 
 
@@ -46,33 +46,34 @@ private:
     vector<string> appointments;
 
 public:
-    Client(string username, string password): User(username, password, "Client")
-         {
+    Client(string username, string password) : User(username, password, "Client")
+    {
 
-        }
+    }
 
-    void reserveAppointment(const string& timeSlot) 
+    void reserveAppointment(const string& timeSlot)
     {
         appointments.push_back(timeSlot);
         cout << "Appointment reserved at " << timeSlot << ".\n";
     }
 
-    void generateInvoice() 
-     {
+    void generateInvoice()
+    {
         if (!appointments.empty())
-         {
+        {
             cout << "Invoice for appointments:\n";
-            for (const auto& slot : appointments)
+            for (auto& slot : appointments)
                 cout << "- Appointment at " << slot << endl;
-        } else {
+        }
+        else {
             cout << "No appointments to generate invoice for.\n";
         }
     }
 
-    void searchSlot(const string& timeSlot) 
-     {
-        for (const auto& slot : appointments)
-         {
+    void searchSlot(string& timeSlot)
+    {
+        for (auto& slot : appointments)
+        {
             if (slot == timeSlot) {
                 cout << "You have an appointment at " << timeSlot << ".\n";
                 return;
@@ -81,26 +82,25 @@ public:
         cout << timeSlot << " is available.\n";
     }
 
-    void sendNotification() 
-     {
+    void sendNotification()
+    {
         cout << "Notification email sent to " << username
-             << " for service evaluation.\n";
+            << " for service evaluation.\n";
     }
- 
 
 };
 
 
-class StoreManagement 
+class StoreManagement
 {
 private:
     vector<string> vaccines;
     int vaccineCount;
 
 public:
-    StoreManagement(int initialCount = 100) : vaccineCount(initialCount) 
+    StoreManagement(int initialCount = 100) : vaccineCount(initialCount)
     {
-        
+
     }
 
     void manageStore() {
@@ -108,50 +108,51 @@ public:
         int used;
         cout << "Enter number of vaccines used: ";
         cin >> used;
-        if (used <= vaccineCount) 
+        if (used <= vaccineCount)
         {
             vaccineCount -= used;
             cout << "Vaccine count updated: " << vaccineCount << endl;
-        } else {
+        }
+        else {
             cout << "Not enough vaccines in stock.\n";
         }
     }
 
-    void generateReport() 
-     {
+    void generateReport()
+    {
         cout << "Vaccination store status:\n";
         cout << "- Total vaccines available: " << vaccineCount << endl;
     }
-   
 
-    
+
 };
 
 
-class UserManagement 
+class UserManagement
 {
 private:
     vector<User*> users;
 
 public:
-    ~UserManagement() 
+    ~UserManagement()
     {
         for (auto user : users)
             delete user;
     }
 
-    void addUser(const string& username, const string& password, const string& userType)
-     {
+    void addUser(string& username, const string& password, const string& userType)
+    {
         if (userType == "Client") {
             users.push_back(new Client(username, password));
-        } else {
+        }
+        else {
             users.push_back(new User(username, password, userType));
         }
         cout << userType << " added successfully with username: " << username << endl;
     }
 
     void updateUser(const string& username)
-     {
+    {
         for (auto user : users) {
             if (user->getUsername() == username) {
                 cout << "Updating " << username << "'s details.\n";
@@ -168,13 +169,13 @@ public:
         cout << "User not found.\n";
     }
 
-    void deleteUser(const string& username)
-     {
+    void deleteUser(string& username)
+    {
         for (auto it = users.begin(); it != users.end(); ++it)
         {
             if ((*it)->getUsername() == username) {
                 cout << "User " << username << " deleted successfully.\n";
-                delete *it;
+                delete* it;
                 users.erase(it);
                 return;
             }
@@ -182,19 +183,20 @@ public:
         cout << "User not found.\n";
     }
 
-    void listUsers() 
+    void listUsers()
     {
-        if (users.empty()) 
+        if (users.empty())
         {
             cout << "No users registered.\n";
-        } else {
+        }
+        else {
             cout << "Registered Users:\n";
-            for (const auto& user : users) {
+            for (auto& user : users) {
                 cout << " " << user->getUserType() << ": " << user->getUsername() << endl;
             }
         }
     }
-   
+
 };
 
 
@@ -204,7 +206,7 @@ int main() {
 
     int choice;
 
-    do {
+    while (choice != 4) {
         cout << "\n--- Vaccination System ---\n";
         cout << "1. Client Reservation\n";
         cout << "2. Vaccination Store Management\n";
@@ -214,121 +216,127 @@ int main() {
         cin >> choice;
 
         switch (choice)
-         {
+        {
+        case 1:
+        {
+            string username, password, timeSlot;
+            cout << "\n--- Client Reservation ---\n";
+            cout << "Enter Username: ";
+            cin >> username;
+            cout << "Enter Password: ";
+            cin >> password;
+
+
+            Client client(username, password);
+            client.login();
+
+            cout << "1. Reserve Appointment\n";
+            cout << "2. Generate Invoice\n";
+            cout << "3. Search Time Slot\n";
+            cout << "4. Send Notification\n";
+            cout << "Enter your choice: ";
+            int clientChoice;
+            cin >> clientChoice;
+
+            switch (clientChoice)
+            {
             case 1:
-             {
-                string username, password, timeSlot;
-                cout << "\n--- Client Reservation ---\n";
+                cout << "Enter preferred time slot: ";
+                cin.ignore();
+                getline(cin, timeSlot);
+                client.reserveAppointment(timeSlot);
+                break;
+            case 2:
+                client.generateInvoice();
+                break;
+            case 3:
+                cout << "Enter time slot to search: ";
+                cin.ignore();
+                getline(cin, timeSlot);
+                client.searchSlot(timeSlot);
+                break;
+            case 4:
+                client.sendNotification();
+                break;
+            default:
+                cout << "Invalid choice.\n";
+            }
+            client.logout();
+            break;
+        }
+
+        case 2:
+            cout << "\n--- Vaccination Store Management ---\n";
+            cout << "1. Manage Store\n";
+            cout << "2. Generate Report\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            if (choice == 1)
+            {
+                store.manageStore();
+            }
+            else if (choice == 2)
+            {
+                store.generateReport();
+            }
+            else {
+                cout << "Invalid choice.\n";
+            }
+            break;
+
+        case 3:
+            cout << "\n--- User Management ---\n";
+            cout << "1. Add User\n";
+            cout << "2. Update User\n";
+            cout << "3. Delete User\n";
+            cout << "4. List Users\n";
+            cout << "Enter your choice: ";
+            cin >> choice;
+
+            if (choice == 1)
+            {
+                string username, password, userType;
                 cout << "Enter Username: ";
                 cin >> username;
                 cout << "Enter Password: ";
                 cin >> password;
-
-               
-                Client client(username, password);
-                client.login();
-
-                cout << "1. Reserve Appointment\n";
-                cout << "2. Generate Invoice\n";
-                cout << "3. Search Time Slot\n";
-                cout << "4. Send Notification\n";
-                cout << "Enter your choice: ";
-                int clientChoice;
-                cin >> clientChoice;
-
-                switch (clientChoice)
-                 {
-                    case 1:
-                        cout << "Enter preferred time slot: ";
-                        cin.ignore();
-                        getline(cin, timeSlot);
-                        client.reserveAppointment(timeSlot);
-                        break;
-                    case 2:
-                        client.generateInvoice();
-                        break;
-                    case 3:
-                        cout << "Enter time slot to search: ";
-                        cin.ignore();
-                        getline(cin, timeSlot);
-                        client.searchSlot(timeSlot);
-                        break;
-                    case 4:
-                        client.sendNotification();
-                        break;
-                    default:
-                        cout << "Invalid choice.\n";
-                }
-                client.logout();
-                break;
+                cout << "Enter User Type (Client/Seller/Admin): ";
+                cin >> userType;
+                userManagement.addUser(username, password, userType);
             }
+            else if (choice == 2)
+            {
+                string username;
+                cout << "Enter Username to update: ";
+                cin >> username;
+                userManagement.updateUser(username);
+            }
+            else if (choice == 3)
+            {
+                string username;
+                cout << "Enter Username to delete: ";
+                cin >> username;
+                userManagement.deleteUser(username);
+            }
+            else if (choice == 4)
 
-            case 2:
-                cout << "\n--- Vaccination Store Management ---\n";
-                cout << "1. Manage Store\n";
-                cout << "2. Generate Report\n";
-                cout << "Enter your choice: ";
-                cin >> choice;
+            {
+                userManagement.listUsers();
+            }
+            else {
+                cout << "Invalid choice.\n";
+            }
+            break;
 
-                if (choice == 1) 
-                {
-                    store.manageStore();
-                } else if (choice == 2) 
-                {
-                    store.generateReport();
-                } else {
-                    cout << "Invalid choice.\n";
-                }
-                break;
+        case 4:
+            cout << "Exiting the system. Goodbye!\n";
+            break;
 
-            case 3:
-                cout << "\n--- User Management ---\n";
-                cout << "1. Add User\n";
-                cout << "2. Update User\n";
-                cout << "3. Delete User\n";
-                cout << "4. List Users\n";
-                cout << "Enter your choice: ";
-                cin >> choice;
-
-                if (choice == 1)
-                 {
-                    string username, password, userType;
-                    cout << "Enter Username: ";
-                    cin >> username;
-                    cout << "Enter Password: ";
-                    cin >> password;
-                    cout << "Enter User Type (Client/Seller/Admin): ";
-                    cin >> userType;
-                    userManagement.addUser(username, password, userType);
-                } else if (choice == 2) 
-                {
-                    string username;
-                    cout << "Enter Username to update: ";
-                    cin >> username;
-                    userManagement.updateUser(username);
-                } else if (choice == 3) 
-                {
-                    string username;
-                    cout << "Enter Username to delete: ";
-                    cin >> username;
-                    userManagement.deleteUser(username);
-                } else if (choice == 4)
-
-                {
-                    userManagement.listUsers();
-                } else {
-                    cout << "Invalid choice.\n";
-                }
-                break;
-
-            case 4:
-                cout << "Exiting the system. Goodbye!\n";
-                break;
-
-            default:
-                cout << "Invalid choice. Try again.\n";
+        default:
+            cout << "Invalid choice. Try again.\n";
         }
-    } while (choice != 4);
+    }
 
     return 0;
 }
